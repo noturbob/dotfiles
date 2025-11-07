@@ -74,7 +74,7 @@ set undodir=~/.cache/vim/undo
 " 🚀 Quality of Life
 " ────────────────────────────────
 set mouse=a
-set clipboard=unnamedplus      " Use system clipboard
+set clipboard+=unnamedplus      " Use system clipboard
 set splitbelow
 set splitright
 set scrolloff=8

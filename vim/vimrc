@@ -1,0 +1,100 @@
+" ────────────────────────────────
+" ✨ General Settings
+" ────────────────────────────────
+set nocompatible              " Disable Vi compatibility
+set encoding=utf-8
+syntax on                     " Enable syntax highlighting
+filetype plugin indent on      " Enable smart indentation
+
+" ────────────────────────────────
+" 🧭 UI / Appearance
+" ────────────────────────────────
+set number                    " Show line numbers
+set relativenumber             " Relative line numbers
+set cursorline                 " Highlight current line
+set showcmd                    " Show command in bottom bar
+set ruler                      " Show position in file
+set wildmenu                   " Better command-line completion
+set title                      " Show file name in terminal title
+set termguicolors              " Truecolor support
+
+" ────────────────────────────────
+" 🪞 Transparency / Background
+" ────────────────────────────────
+hi Normal guibg=NONE ctermbg=NONE
+hi NonText guibg=NONE ctermbg=NONE
+set background=dark
+
+" ────────────────────────────────
+" 🌙 Catppuccin Mocha Theme Colors
+" ────────────────────────────────
+if &termguicolors
+  highlight Normal       guifg=#CDD6F4 guibg=NONE
+  highlight Comment      guifg=#7F849C gui=italic
+  highlight Constant     guifg=#FAB387
+  highlight Identifier   guifg=#89B4FA
+  highlight Statement    guifg=#F38BA8
+  highlight PreProc      guifg=#F9E2AF
+  highlight Type         guifg=#A6E3A1
+  highlight Special      guifg=#F5C2E7
+  highlight Underlined   guifg=#94E2D5
+  highlight CursorLine   guibg=#313244
+  highlight Visual       guibg=#45475A
+endif
+
+" ────────────────────────────────
+" ⌨️ Editing Behavior
+" ────────────────────────────────
+set tabstop=4
+set shiftwidth=4
+set expandtab
+set smartindent
+set autoindent
+set backspace=indent,eol,start
+
+" ────────────────────────────────
+" 🔍 Searching
+" ────────────────────────────────
+set hlsearch
+set incsearch
+set ignorecase
+set smartcase
+
+" ────────────────────────────────
+" 📂 File handling
+" ────────────────────────────────
+set hidden
+set nobackup
+set nowritebackup
+set noswapfile
+set undofile
+set undodir=~/.cache/vim/undo
+
+" ────────────────────────────────
+" 🚀 Quality of Life
+" ────────────────────────────────
+set mouse=a
+set clipboard=unnamedplus      " Use system clipboard
+set splitbelow
+set splitright
+set scrolloff=8
+set signcolumn=yes
+
+" ────────────────────────────────
+" 🧠 Useful keybinds
+" ────────────────────────────────
+nnoremap <C-s> :w<CR>
+inoremap <C-s> <Esc>:w<CR>a
+nnoremap <C-q> :q<CR>
+
+" Toggle relative numbers
+nnoremap <leader>r :set relativenumber!<CR>
+
+" ────────────────────────────────
+" 🎨 Optional: make Vim blend with Kitty blur
+" ────────────────────────────────
+if exists('$KITTY_WINDOW_ID')
+  " Kitty already handles transparency — don't override it
+  hi Normal guibg=NONE ctermbg=NONE
+endif
+

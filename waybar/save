@@ -13,6 +13,8 @@
     ],
     "modules-right": [
         "custom/theme",
+        "custom/waytheme",
+        "custom/wallpaper",
         "bluetooth",
         "tray",
         "pulseaudio",
@@ -32,7 +34,7 @@
             "spotify": "",
             "default": "🎵"
         },
-        "exec": "/conf/waybar/playerinfo.sh",
+        "exec": "~/.config/waybar/playerinfo.sh",
         "escape": true,
         "return-type": "json",
         "tooltip": true,
@@ -50,26 +52,26 @@
 
     "custom/wallpaper": {
         "format": "",
-        "on-click": "/conf/niri/scripts/set_wallpaper.sh"
+        "on-click": "~/.config/niri/scripts/set_wallpaper.sh"
     },
 
     "custom/waytheme": {
         "format": "",
-        "on-click": "/conf/niri/scripts/theme_setter.sh"
+        "on-click": "~/.config/niri/scripts/theme_setter.sh"
     },
 
     "custom/theme": {
         "format": "",
-        "on-click": "/conf/waybar/scripts/theme-switcher.sh"
+        "on-click": "~/.config/waybar/scripts/theme-switcher.sh"
     },
 
     "custom/date": {
-        "exec": "/conf/waybar/scripts/date.sh",
+        "exec": "~/.config/waybar/scripts/date.sh",
         "interval": 60
     },
 
     "custom/window": {
-        "exec": "/conf/waybar/scripts/window.sh",
+        "exec": "~/.config/waybar/scripts/window.sh",
         "interval": 1,
         "format": "{}",
         "tooltip": false
@@ -93,7 +95,7 @@
     },
 
     "custom/battery": {
-        "exec": "/conf/waybar/scripts/battery.sh",
+        "exec": "~/.config/waybar/scripts/batery.sh",
         "interval": 2,
         "return-type": "text",
         "tooltip": false
@@ -150,14 +152,14 @@
 
     "custom/power": {
         "format": "⏻",
-        "on-click": "/conf/waybar/scripts/power-menu.sh",
+        "on-click": "~/.config/niri/scripts/power-menu.sh",
         "tooltip": false
     },
 
     "custom/notifications": {
         "format": "{}",
         "on-click": "swaync-client -t -sw",
-        "exec": "~/conf/waybar/scripts/waybar-notification.sh",
+        "exec": "~/.config/waybar/scripts/waybar-notification.sh",
         "tooltip": false,
         "interval": 1
     },
@@ -218,6 +220,7 @@
         }
     }
 }
+
 
 
 

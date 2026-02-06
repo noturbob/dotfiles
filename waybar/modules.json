@@ -86,10 +86,11 @@
     "battery#bat2": {
         "bat": "BAT2"
     },
-    "clock": {
-        "format": "{:%H:%M | %e %B} ",
-        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "format-alt": "{:%Y-%m-%d}"
+    "custom/clock": {
+        "format": "{}",
+        "exec": "bash /conf/waybar/scripts/clock.sh",
+        "interval": 1,
+        "tooltip-format": "Asia/Kolkata Timezone"
     }
 
 }

@@ -311,7 +311,7 @@ animations {
     on
 
     // Slow down all animations by this factor. Values below 1 speed them up instead.
-     slowdown 2.0
+     slowdown 1.5
 }
 
 // Window rules let you adjust behavior for individual windows.
@@ -442,7 +442,7 @@ binds {
     // You can also move the mouse into the top-left hot corner,
     // or do a four-finger swipe up on a touchpad.
     Mod+O repeat=false { toggle-overview; }
-
+    Mod+Tab repeat=false { toggle-overview; }
     Mod+Q repeat=false { close-window; }
 
     Mod+Left  { focus-column-left; }
@@ -503,8 +503,8 @@ binds {
 
     Mod+Page_Down      { focus-workspace-down; }
     Mod+Page_Up        { focus-workspace-up; }
-    Mod+U              { focus-workspace-down; }
-    Mod+I              { focus-workspace-up; }
+    Mod+Alt+Down       { focus-workspace-down; }
+    Mod+Alt+Up         { focus-workspace-up; }
     Mod+Ctrl+Page_Down { move-column-to-workspace-down; }
     Mod+Ctrl+Page_Up   { move-column-to-workspace-up; }
     Mod+Ctrl+U         { move-column-to-workspace-down; }

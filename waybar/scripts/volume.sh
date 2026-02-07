@@ -1,56 +1,175 @@
-#!/bin/bash
-# ── volume.sh ─────────────────────────────────────────────
-# Description: Shows current audio volume with ASCII bar + tooltip
-# Usage: Waybar `custom/volume` every 1s
-# Dependencies: wpctl, awk, bc, seq, printf
-# ───────────────────────────────────────────────────────────
+#!/usr/bin/env bash
+#
+# Adjust default device volume and send a notification with the current level
+#
+# Requirements:
+# - pactl (libpulse)
+# - notify-send (libnotify)
+#
+# Author:  Jesse Mirabel <sejjymvm@gmail.com>
+# Date:    September 07, 2025
+# License: MIT
 
-# Get raw volume and convert to int
-vol_raw=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{ print $2 }')
-vol_int=$(echo "$vol_raw * 100" | bc | awk '{ print int($1) }')
+DEF_VALUE=1
+MIN=0
+MAX=100
 
-# Check mute status
-is_muted=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q MUTED && echo true || echo false)
+usage() {
+	local script=${0##*/}
 
-# Get default sink description (human-readable)
-sink=$(wpctl status | awk '/Sinks:/,/Sources:/' | grep '\*' | cut -d'.' -f2- | sed 's/^\s*//; s/\[.*//')
+	cat <<- EOF
+		USAGE: $script {input|output} {mute|raise|lower} [value]
 
-# Icon logic
-if [ "$is_muted" = true ]; then
-  icon=""
-  vol_int=0
-elif [ "$vol_int" -lt 50 ]; then
-  icon=""
-else
-  icon=""
-fi
+		Adjust default device volume and send a notification with the current level
 
-# ASCII bar
-filled=$((vol_int / 10))
-empty=$((10 - filled))
-bar=$(printf '█%.0s' $(seq 1 $filled))
-pad=$(printf '░%.0s' $(seq 1 $empty))
-ascii_bar="[$bar$pad]"
+		DEVICE:
+		  input            Use "@DEFAULT_SOURCE@" (microphone)
+		  output           Use "@DEFAULT_SINK@" (speaker/headphones)
 
+		OPTIONS:
+		  mute             Toggle device mute
+		  raise [value]    Raise volume by [value] (default: $DEF_VALUE)
+		  lower [value]    Lower volume by [value] (default: $DEF_VALUE)
 
-# Color logic
-if [ "$is_muted" = true ] || [ "$vol_int" -lt 10 ]; then
-  fg="#8b5a9f"  # muted / dark purple
-elif [ "$vol_int" -lt 50 ]; then
-  fg="#d5a8f0"  # medium pastel purple
-else
-  fg="#cb6ce6"  # bright purple
-fi
+		EXAMPLES:
+		  Toggle microphone mute:
+		    $ $script input mute
 
+		  Raise speaker volume:
+		    $ $script output raise
 
+		  Lower speaker volume by 5:
+		    $ $script output lower 5
+	EOF
+}
 
-# Tooltip text
-if [ "$is_muted" = true ]; then
-  tooltip="Audio: Muted\nOutput: $sink"
-else
-  tooltip="Audio: $vol_int%\nOutput: $sink"
-fi
+pactl() {
+	command pactl "$1" "$DEV_DEF" "${@:2}"
+}
 
-# Final JSON output
-echo "{\"text\":\"<span foreground='$fg'>$icon $ascii_bar $vol_int%</span>\",\"tooltip\":\"$tooltip\"}"
+get_state() {
+	local state
+	state=$(pactl "get-$DEV_STATE" | awk '{print $2}')
 
+	case $state in
+		yes) printf "Muted" ;;
+		no)  printf "Unmuted" ;;
+	esac
+}
+
+get_volume() {
+	pactl "get-$DEV_VOLUME" | awk '{print $5}' | tr -d '%'
+}
+
+get_icon() {
+	local state level
+
+	state=$(get_state)
+	level=$(get_volume)
+
+	local icon
+	local new_level=${1:-$level}
+
+	if [[ $state == Muted ]]; then
+		icon="$DEV_ICON-muted"
+	else
+		if ((new_level < MAX * 33 / 100)); then
+			icon="$DEV_ICON-low"
+		elif ((new_level < MAX * 66 / 100)); then
+			icon="$DEV_ICON-medium"
+		else
+			icon="$DEV_ICON-high"
+		fi
+	fi
+
+	printf "%s" "$icon"
+}
+
+set_state() {
+	pactl "set-$DEV_STATE" toggle
+
+	local state icon
+
+	state=$(get_state)
+	icon=$(get_icon)
+
+	notify-send "$DEV_NAME: $state" -i "$icon" \
+		-h string:x-canonical-private-synchronous:volume
+}
+
+set_volume() {
+	local level
+	level=$(get_volume)
+
+	local new_level
+
+	case $ACTION in
+		raise)
+			new_level=$((level + VALUE))
+			if ((new_level > MAX)); then
+				new_level=$MAX
+			fi
+			;;
+		lower)
+			new_level=$((level - VALUE))
+			if ((new_level < MIN)); then
+				new_level=$MIN
+			fi
+			;;
+	esac
+
+	pactl "set-$DEV_VOLUME" "$new_level%"
+
+	local icon
+	icon=$(get_icon $new_level)
+
+	notify-send "$DEV_NAME: $new_level%" -h int:value:$new_level -i "$icon" \
+		-h string:x-canonical-private-synchronous:volume
+}
+
+main() {
+	DEVICE=$1
+	ACTION=$2
+	VALUE=${3:-$DEF_VALUE}
+
+	if ((VALUE < 1)); then
+		usage >&2
+		return 1
+	fi
+
+	case $DEVICE in
+		input)
+			DEV_DEF="@DEFAULT_SOURCE@"
+			DEV_STATE="source-mute"
+			DEV_VOLUME="source-volume"
+			DEV_ICON="mic-volume"
+			DEV_NAME="Microphone"
+			;;
+		output)
+			DEV_DEF="@DEFAULT_SINK@"
+			DEV_STATE="sink-mute"
+			DEV_VOLUME="sink-volume"
+			DEV_ICON="audio-volume"
+			DEV_NAME="Volume"
+			;;
+		*)
+			usage >&2
+			return 1
+			;;
+	esac
+
+	case $ACTION in
+		mute)
+			set_state
+			;;
+		raise | lower)
+			set_volume
+			;;
+		*)
+			usage >&2
+			return 1
+			;;
+	esac
+}
+
+main "$@"
